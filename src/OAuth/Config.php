@@ -32,6 +32,11 @@ class Config
         return $this->redirectUrl;
     }
 
+    public function getBasicAuth()
+    {
+        return base64_encode($this->clientId + ":" + $this->clientSecret);
+    }
+
     public function setCode(string $code)
     {
         return $this->code = $code;
