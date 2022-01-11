@@ -75,9 +75,11 @@ class OAuth
             'code'       => $code
         ]);
 
-        $curl->setHeaders([
-            "Authorization" => "Basic {$this->config->getBasicAuth()}"
-        ]);
+        if($this->config->getOAuthType() === "server"){
+            $curl->setHeaders([
+                "Authorization" => "Basic {$this->config->getBasicAuth()}"
+            ]);    
+        }
 
         $curl->setMime("form");
 

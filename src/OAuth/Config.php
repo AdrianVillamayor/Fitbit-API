@@ -15,11 +15,13 @@ class Config
         string $clientId,
         string $clientSecret,
         string $redirectUrl,
+        string $authType,
         string $code = null
     ) {
-        $this->clientId = $clientId;
+        $this->clientId     = $clientId;
         $this->clientSecret = $clientSecret;
-        $this->redirectUrl = $redirectUrl;
+        $this->redirectUrl  = $redirectUrl;
+        $this->authType     = strtolower($authType);
     }
 
     public function getClientId()
@@ -30,6 +32,11 @@ class Config
     public function getRedirectUrl()
     {
         return $this->redirectUrl;
+    }
+
+    public function getOAuthType()
+    {
+        return $this->authType;
     }
 
     public function getBasicAuth()

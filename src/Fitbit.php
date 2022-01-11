@@ -20,7 +20,7 @@ class Fitbit
         string $clientSecret,
         string $redirectUrl
     ) {
-        $this->config = new Config($clientId, $clientSecret, $redirectUrl);
+        $this->config = new Config($clientId, $clientSecret, $redirectUrl, "client");
         $this->authorizator = new OAuth($this->config);
     }
 
