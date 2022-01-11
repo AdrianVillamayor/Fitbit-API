@@ -17,7 +17,7 @@ class OAuth
 
     public function getAuthUri()
     {
-        return $this->AUTHORIZE_URL . '?' . http_build_query([
+        return self::AUTHORIZE_URL . '?' . http_build_query([
             'client_id' => $this->config->getClientId(),
             'scope' => implode(' ', [
                 'activity',
