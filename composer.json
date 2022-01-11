@@ -1,5 +1,5 @@
 {
-    "name": "adrian/fitbit-api",
+    "name": "adrii/fitbit-api",
     "require": {
         "php": ">=7.0",
         "adrii/curl-helper": "^1.6"
