@@ -1,0 +1,18 @@
+{
+    "name": "adrian/fitbit-api",
+    "require": {
+        "adrii/curl-helper": "^1.6"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Adrian\\FitbitApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Adrii",
+            "email": "adrian.villamayor@gmail.com"
+        }
+    ]
+}
