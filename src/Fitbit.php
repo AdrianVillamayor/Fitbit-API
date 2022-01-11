@@ -30,10 +30,9 @@ class Fitbit
     }
 
 
-    public function getAccessToken()
+    public function getAccessToken($code)
     {
-        return $this->authorizator->getAccess();
+        return $this->authorizator->getAccess($code);
     }
-
 
 }

@@ -63,12 +63,11 @@ class OAuth
         return $this->challenge;
     }
 
-    public function getAccess($url, $code)
+    public function getAccess($code)
     {
-        $basic = $this->config->getBasicAuth();
         $curl  = new CurlHelper();
 
-        $curl->setUrl($url);
+        $curl->setUrl(self::TOKEN_URL);
 
         $curl->setPostRaw([
             'client_id'  => $this->config->getClientId(),
@@ -77,7 +76,7 @@ class OAuth
         ]);
 
         $curl->setHeaders([
-            "Authorization" => "Basic {$basic}"
+            "Authorization" => "Basic {$this->config->getBasicAuth()}"
         ]);
 
         $curl->setMime("form");
