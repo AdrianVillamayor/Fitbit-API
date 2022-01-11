@@ -86,8 +86,6 @@ class OAuth
         $response   = $curl->response();
         $code       = $curl->http_code();
 
-        var_dump($code);
-
         return $response;
     }
 
