@@ -34,7 +34,7 @@ class Config
 
     public function getBasicAuth()
     {
-        return base64_encode($this->clientId + ":" + $this->clientSecret);
+        return base64_encode($this->clientId . ":" . $this->clientSecret);
     }
 
     public function setCode(string $code)
