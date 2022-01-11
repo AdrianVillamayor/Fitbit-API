@@ -30,4 +30,10 @@ class Fitbit
     }
 
 
+    public function getAccessToken()
+    {
+        return $this->authorizator->getAccess();
+    }
+
+
 }

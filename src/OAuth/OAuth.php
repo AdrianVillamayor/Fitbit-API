@@ -58,7 +58,7 @@ class OAuth
         $this->callenge = $challenge;
     }
 
-    private function getCode()
+    private function getCodeChallenge()
     {
         return $this->challenge;
     }
