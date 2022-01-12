@@ -16,12 +16,15 @@ class OAuth
     public function __construct(Config $config)
     {
         $this->config = $config;
+        $this->setCodeChallenge();
     }
 
-    public function getAuthUri()
+    public function getAuthUri(): string
     {
         $auth_uri = self::AUTHORIZE_URL . '?' . http_build_query([
-            'client_id' => $this->config->getClientId(),
+            'client_id'             => $this->config->getClientId(),
+            'code_challenge'        => $this->getCodeChallenge(),
+            'code_challenge_method' => 'S256',
             'scope' => implode(' ', [
                 'activity',
                 'nutrition',
@@ -34,19 +37,19 @@ class OAuth
                 'social',
                 'weight',
             ]),
-            'response_type' => 'code',
-            'redirect_uri' => $this->config->getRedirectUrl(),
-            'expires_in' => '604800',
+            'response_type'         => 'code',
+            'redirect_uri'          => $this->config->getRedirectUrl(),
+            'expires_in'            => '604800',
         ]);
 
-        if($this->config->getStaticParams() !== null){
+        if ($this->config->getStaticParams() !== null) {
             $auth_uri = "{auth_uri}&state={$this->config->getStaticParams()}";
         }
 
         return $auth_uri;
     }
 
-    private function base64url_encode(string $plainText)
+    private function base64url_encode(string $plainText): string
     {
         $base64 = base64_encode($plainText);
         $base64 = trim($base64, "=");
@@ -55,7 +58,7 @@ class OAuth
         return $base64url;
     }
 
-    private function setCodeChallenge()
+    private function setCodeChallenge(): void
     {
         $random     = bin2hex(openssl_random_pseudo_bytes(64));
         $verifier   = $this->base64url_encode(pack('H*', $random));
@@ -64,12 +67,12 @@ class OAuth
         $this->callenge = $challenge;
     }
 
-    private function getCodeChallenge()
+    private function getCodeChallenge(): string
     {
         return $this->challenge;
     }
 
-    public function getAccessToken(string $code)
+    public function getAccessToken(string $code): ?array
     {
         $curl  = new CurlHelper();
 
@@ -81,10 +84,10 @@ class OAuth
             'code'       => $code
         ]);
 
-        if($this->config->getOAuthType() === "server"){
+        if ($this->config->getOAuthType() === "server") {
             $curl->setHeaders([
                 "Authorization" => "Basic {$this->config->getBasicAuth()}"
-            ]);    
+            ]);
         }
 
         $curl->setMime("form");
@@ -97,14 +100,12 @@ class OAuth
         return $response;
     }
 
-    public function setAuthorizationCode(string $code)
+    public function setAuthorizationCode(string $code): void
     {
         $this->config->setCode($code);
-
-        return $this;
     }
 
-    public function isAuthorized()
+    public function isAuthorized(): bool
     {
         return $this->config->hasCode();
     }

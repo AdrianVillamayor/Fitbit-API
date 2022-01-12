@@ -25,42 +25,42 @@ class Config
         $this->authType     = strtolower($authType);
     }
 
-    public function getClientId()
+    public function getClientId(): string
     {
         return $this->clientId;
     }
 
-    public function getRedirectUrl()
+    public function getRedirectUrl(): string
     {
-        return $this->staticParams;
+        return $this->redirectUrl;
     }
 
-    public function getOAuthType()
+    public function getOAuthType(): string
     {
         return $this->authType;
     }
 
-    public function getBasicAuth()
+    public function getBasicAuth(): string
     {
         return base64_encode($this->clientId . ":" . $this->clientSecret);
     }
 
-    public function setCode(string $code)
+    public function setCode(string $code): void
     {
-        return $this->code = $code;
+        $this->code = $code;
     }
 
-    public function hasCode()
+    public function hasCode(): bool
     {
         return !is_null($this->code);
     }
 
-    public function getStaticParams()
+    public function getStaticParams(): ?string
     {
         return $this->staticParams;
     }
 
-    public function setStaticParams(string $raw)
+    public function setStaticParams(mixed $raw): void
     {
         if (is_array($raw)) {
             $raw = http_build_query($raw);
