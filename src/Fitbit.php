@@ -19,7 +19,8 @@ class Fitbit
         string $clientId,
         string $clientSecret,
         string $redirectUrl,
-        string $authType
+        string $authType,
+        string $setStaticParams = null
     ) {
         $this->config       = new Config($clientId, $clientSecret, $redirectUrl, $authType);
         $this->authorizator = new OAuth($this->config);
@@ -30,7 +31,7 @@ class Fitbit
         return $this->authorizator->getAuthUri();
     }
 
-    public function getAccessToken($code)
+    public function getAccessToken(string $code)
     {
         return $this->authorizator->getAccess($code);
     }

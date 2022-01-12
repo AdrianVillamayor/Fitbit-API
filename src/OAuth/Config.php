@@ -16,6 +16,7 @@ class Config
         string $clientSecret,
         string $redirectUrl,
         string $authType,
+        string $staticParams = null,
         string $code = null
     ) {
         $this->clientId     = $clientId;
@@ -31,7 +32,7 @@ class Config
 
     public function getRedirectUrl()
     {
-        return $this->redirectUrl;
+        return $this->staticParams;
     }
 
     public function getOAuthType()
@@ -52,5 +53,19 @@ class Config
     public function hasCode()
     {
         return !is_null($this->code);
+    }
+
+    public function getStaticParams()
+    {
+        return $this->staticParams;
+    }
+
+    public function setStaticParams(string $raw)
+    {
+        if (is_array($raw)) {
+            $raw = http_build_query($raw);
+        }
+
+        $this->staticParams = $raw;
     }
 }

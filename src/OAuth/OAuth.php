@@ -20,7 +20,7 @@ class OAuth
 
     public function getAuthUri()
     {
-        return self::AUTHORIZE_URL . '?' . http_build_query([
+        $auth_uri = self::AUTHORIZE_URL . '?' . http_build_query([
             'client_id' => $this->config->getClientId(),
             'scope' => implode(' ', [
                 'activity',
@@ -38,9 +38,15 @@ class OAuth
             'redirect_uri' => $this->config->getRedirectUrl(),
             'expires_in' => '604800',
         ]);
+
+        if($this->config->getStaticParams() !== null){
+            $auth_uri = "{auth_uri}&state={$this->config->getStaticParams()}";
+        }
+
+        return $auth_uri;
     }
 
-    private function base64url_encode($plainText)
+    private function base64url_encode(string $plainText)
     {
         $base64 = base64_encode($plainText);
         $base64 = trim($base64, "=");
@@ -63,7 +69,7 @@ class OAuth
         return $this->challenge;
     }
 
-    public function getAccess($code)
+    public function getAccessToken(string $code)
     {
         $curl  = new CurlHelper();
 
@@ -90,7 +96,6 @@ class OAuth
 
         return $response;
     }
-
 
     public function setAuthorizationCode(string $code)
     {
