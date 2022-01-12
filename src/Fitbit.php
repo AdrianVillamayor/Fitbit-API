@@ -10,17 +10,18 @@ use Adrii\OAuth\Config;
 class Fitbit
 {
     private $nonUserUrl = 'https://api.fitbit.com/1/';
-    private $baseUrl = 'https://api.fitbit.com/1/user/';
-    private $v11Url = 'https://api.fitbit.com/1.1/user/';
-    private $v12Url = 'https://api.fitbit.com/1.2/user/';
-    private $userId = '-';
+    private $baseUrl    = 'https://api.fitbit.com/1/user/';
+    private $v11Url     = 'https://api.fitbit.com/1.1/user/';
+    private $v12Url     = 'https://api.fitbit.com/1.2/user/';
+    private $userId     = '-';
 
     public function __construct(
         string $clientId,
         string $clientSecret,
-        string $redirectUrl
+        string $redirectUrl,
+        string $authType
     ) {
-        $this->config = new Config($clientId, $clientSecret, $redirectUrl, "client");
+        $this->config       = new Config($clientId, $clientSecret, $redirectUrl, $authType);
         $this->authorizator = new OAuth($this->config);
     }
 
@@ -29,10 +30,8 @@ class Fitbit
         return $this->authorizator->getAuthUri();
     }
 
-
     public function getAccessToken($code)
     {
         return $this->authorizator->getAccess($code);
     }
-
 }
