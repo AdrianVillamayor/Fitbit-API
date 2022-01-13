@@ -23,7 +23,7 @@ class OAuth
     {
         $auth_uri = self::AUTHORIZE_URL . '?' . http_build_query([
             'client_id'             => $this->config->getClientId(),
-            'code_challenge'        => $this->getCodeChallenge(),
+            // 'code_challenge'        => $this->getCodeChallenge(),
             'code_challenge_method' => 'S256',
             'scope' => implode(' ', [
                 'activity',
@@ -79,9 +79,10 @@ class OAuth
         $curl->setUrl(self::TOKEN_URL);
 
         $curl->setPostRaw([
-            'client_id'  => $this->config->getClientId(),
-            'grant_type' => 'authorization_code',
-            'code'       => $code
+            'client_id'     => $this->config->getClientId(),
+            'grant_type'    => 'authorization_code',
+            // 'code_verifier' => $this->getCodeChallenge(),
+            'code'          => $code
         ]);
 
         if ($this->config->getOAuthType() === "server") {
