@@ -17,7 +17,7 @@ class Config
         string $clientSecret,
         string $redirectUrl,
         string $authType,
-        string $staticParams = null,
+        $staticParams = null,
         string $code = null
     ) {
         $this->clientId     = $clientId;
