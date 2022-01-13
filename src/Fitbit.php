@@ -16,7 +16,7 @@ class Fitbit
         string $clientSecret,
         string $redirectUrl,
         string $authType,
-        string $setStaticParams = null
+        $setStaticParams = null
     ) {
         $this->config       = new Config($clientId, $clientSecret, $redirectUrl, $authType, $setStaticParams);
         $this->authorizator = new OAuth($this->config);
