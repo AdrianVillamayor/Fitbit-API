@@ -23,7 +23,7 @@ class OAuth
     {
         $auth_uri = self::AUTHORIZE_URL . '?' . http_build_query([
             'client_id'             => $this->config->getClientId(),
-            'code_challenge'        => $this->getCodeChallenge(),
+            // 'code_challenge'        => $this->getCodeChallenge(),
             'code_challenge_method' => 'S256',
             'scope' => implode(' ', [
                 'activity',
