@@ -24,6 +24,7 @@ class Config
         $this->clientSecret = $clientSecret;
         $this->redirectUrl  = $redirectUrl;
         $this->authType     = strtolower($authType);
+        $this->setStaticParams($staticParams);
     }
 
     public function getClientId(): string

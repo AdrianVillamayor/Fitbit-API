@@ -13,17 +13,17 @@ class OAuth
     const AUTHORIZE_URL = 'https://www.fitbit.com/oauth2/authorize';
     private $challenge;
 
-    public function __construct(Config $config, $id = null)
+    public function __construct(Config $config)
     {
         $this->config = $config;
-        $this->setCodeChallenge($id);
+        $this->setCodeChallenge();
     }
 
     public function getAuthUri(): string
     {
         $auth_uri = self::AUTHORIZE_URL . '?' . http_build_query([
             'client_id'             => $this->config->getClientId(),
-            // 'code_challenge'        => $this->getCodeChallenge(),
+            'code_challenge'        => $this->getCodeChallenge(),
             'code_challenge_method' => 'S256',
             'scope' => implode(' ', [
                 'activity',
@@ -43,7 +43,7 @@ class OAuth
         ]);
 
         if ($this->config->getStaticParams() !== null) {
-            $auth_uri = "{auth_uri}&state={$this->config->getStaticParams()}";
+            $auth_uri = "{$auth_uri}&state={$this->config->getStaticParams()}";
         }
 
         return $auth_uri;
@@ -58,9 +58,9 @@ class OAuth
         return $base64url;
     }
 
-    private function setCodeChallenge(string $id = null): void
+    private function setCodeChallenge(): void
     {
-        $random     = ($id !== null) ? $id : bin2hex(openssl_random_pseudo_bytes(64));
+        $random     = bin2hex(openssl_random_pseudo_bytes(64));
         $verifier   = $this->base64url_encode(pack('H*', $random));
         $challenge  = $this->base64url_encode(pack('H*', hash('sha256', $verifier)));
 
@@ -79,10 +79,9 @@ class OAuth
         $curl->setUrl(self::TOKEN_URL);
 
         $curl->setPostRaw([
-            'client_id'     => $this->config->getClientId(),
-            'grant_type'    => 'authorization_code',
-            'code_verifier' => $this->getCodeChallenge(),
-            'code'          => $code
+            'client_id'  => $this->config->getClientId(),
+            'grant_type' => 'authorization_code',
+            'code'       => $code
         ]);
 
         if ($this->config->getOAuthType() === "server") {
