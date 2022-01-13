@@ -68,7 +68,7 @@ class Config
     public function setStaticParams($raw): void
     {
         if (is_array($raw)) {
-            $raw = http_build_query($raw);
+            $raw = json_encode($raw);
         }
 
         $this->staticParams = $raw;
