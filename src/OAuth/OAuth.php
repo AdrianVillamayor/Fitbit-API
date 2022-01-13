@@ -79,9 +79,10 @@ class OAuth
         $curl->setUrl(self::TOKEN_URL);
 
         $curl->setPostRaw([
-            'client_id'  => $this->config->getClientId(),
-            'grant_type' => 'authorization_code',
-            'code'       => $code
+            'client_id'     => $this->config->getClientId(),
+            'grant_type'    => 'authorization_code',
+            'redirect_uri'  => $this->config->getRedirectUrl(),
+            'code'          => $code
         ]);
 
         if ($this->config->getOAuthType() === "server") {
