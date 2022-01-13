@@ -64,7 +64,7 @@ class OAuth
         $verifier   = $this->base64url_encode(pack('H*', $random));
         $challenge  = $this->base64url_encode(pack('H*', hash('sha256', $verifier)));
 
-        $this->callenge = $challenge;
+        $this->challenge = $challenge;
     }
 
     private function getCodeChallenge(): string
