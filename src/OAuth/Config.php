@@ -9,6 +9,7 @@ class Config
     private $clientId;
     private $clientSecret;
     private $redirectUrl;
+    private $staticParams;
     private $code;
 
     public function __construct(
@@ -60,7 +61,10 @@ class Config
         return $this->staticParams;
     }
 
-    public function setStaticParams(mixed $raw): void
+    /** 
+     * @param mixed $raw
+    */
+    public function setStaticParams($raw): void
     {
         if (is_array($raw)) {
             $raw = http_build_query($raw);

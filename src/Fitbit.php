@@ -22,12 +22,12 @@ class Fitbit
         $this->authorizator = new OAuth($this->config);
     }
 
-    public function getAuthUri()
+    public function getAuthUri(): string
     {
         return $this->authorizator->getAuthUri();
     }
 
-    public function getAccessToken(string $code)
+    public function getAccessToken(string $code): array
     {
         return $this->authorizator->getAccessToken($code);
     }
