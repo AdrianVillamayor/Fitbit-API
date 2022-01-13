@@ -52,6 +52,11 @@ class Config
         $this->code = $code;
     }
 
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
     public function hasCode(): bool
     {
         return !is_null($this->code);
@@ -64,7 +69,7 @@ class Config
 
     /** 
      * @param mixed $raw
-    */
+     */
     public function setStaticParams($raw): void
     {
         if (is_array($raw)) {

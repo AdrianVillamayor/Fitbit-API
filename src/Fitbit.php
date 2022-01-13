@@ -9,8 +9,6 @@ use Adrii\OAuth\Config;
 
 class Fitbit
 {
-    private $userId     = '-';
-
     public function __construct(
         string $clientId,
         string $clientSecret,
@@ -29,6 +27,7 @@ class Fitbit
 
     public function getAccessToken(string $code): array
     {
+        $this->config->setCode($code);
         return $this->authorizator->getAccessToken($code);
     }
 }

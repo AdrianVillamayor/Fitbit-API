@@ -12,6 +12,9 @@ class OAuth
     const TOKEN_URL     = 'https://api.fitbit.com/oauth2/token';
     const AUTHORIZE_URL = 'https://www.fitbit.com/oauth2/authorize';
     private $challenge;
+    private $access_token;
+    private $refresh_token;
+    private $user_id;
 
     public function __construct(Config $config)
     {
@@ -72,33 +75,41 @@ class OAuth
         return $this->challenge;
     }
 
-    public function getAccessToken(string $code): ?array
+    public function getAccessToken(): ?array
     {
-        $curl  = new CurlHelper();
+        if ($this->config->hasCode()) {
+            $curl  = new CurlHelper();
 
-        $curl->setUrl(self::TOKEN_URL);
+            $curl->setUrl(self::TOKEN_URL);
 
-        $curl->setPostRaw([
-            'client_id'     => $this->config->getClientId(),
-            'grant_type'    => 'authorization_code',
-            'redirect_uri'  => $this->config->getRedirectUrl(),
-            'code'          => $code
-        ]);
-
-        if ($this->config->getOAuthType() === "server") {
-            $curl->setHeaders([
-                "Authorization" => "Basic {$this->config->getBasicAuth()}"
+            $curl->setPostRaw([
+                'client_id'     => $this->config->getClientId(),
+                'grant_type'    => 'authorization_code',
+                'redirect_uri'  => $this->config->getRedirectUrl(),
+                'code'          => $this->config->getCode()
             ]);
+
+            if ($this->config->getOAuthType() === "server") {
+                $curl->setHeaders([
+                    "Authorization" => "Basic {$this->config->getBasicAuth()}"
+                ]);
+            }
+
+            $curl->setMime("form");
+
+            $curl->execute();
+
+            $response   = $curl->response();
+            list($error, $msg) = $curl->parseCode();
+
+            if($error === false){
+                $this->setAuth($response);
+                return $response;
+            }
+
         }
 
-        $curl->setMime("form");
-
-        $curl->execute();
-
-        $response   = $curl->response();
-        $code       = $curl->http_code();
-
-        return $response;
+        return null;
     }
 
     public function setAuthorizationCode(string $code): void
@@ -109,5 +120,27 @@ class OAuth
     public function isAuthorized(): bool
     {
         return $this->config->hasCode();
+    }
+
+    public function setAccessToken(string $access_token): void
+    {
+        $this->access_token = $access_token;
+    }
+
+    public function setRefreshToken(string $refresh_token): void
+    {
+        $this->refresh_token = $refresh_token;
+    }
+    
+    public function setUserId(string $user_id): void
+    {
+        $this->user_id = $user_id;
+    }
+  
+    private function setAuth(array $response): void
+    {
+        $this->setAccessToken  = $response['access_token'];
+        $this->setRefreshToken = $response['refresh_token'];
+        $this->setUserId       = $response['user_id'];
     }
 }
