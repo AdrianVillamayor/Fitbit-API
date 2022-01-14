@@ -86,6 +86,42 @@ class OAuth
 
         return null;
     }
+    
+    public function refreshToken(): ?array
+    {
+        if ($this->config->hasCode()) {
+            $curl  = new CurlHelper();
+
+            $curl->setUrl(self::TOKEN_URL);
+
+            $curl->setPostRaw([
+                'client_id'     => $this->config->getClientId(),
+                'grant_type'    => 'authorization_code',
+                'redirect_uri'  => $this->config->getRedirectUrl(),
+                'code'          => $this->config->getCode()
+            ]);
+
+            if ($this->config->getOAuthType() === "server") {
+                $curl->setHeaders([
+                    "Authorization" => "Basic {$this->config->getBasicAuth()}"
+                ]);
+            }
+
+            $curl->setMime("form");
+
+            $curl->execute();
+
+            $response   = $curl->response();
+            list($error, $msg) = $curl->parseCode();
+
+            if ($error === false) {
+                $this->setAuth($response);
+                return $response;
+            }
+        }
+
+        return null;
+    }
 
     public function setAuthorizationCode(string $code): void
     {
