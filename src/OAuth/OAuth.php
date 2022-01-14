@@ -11,11 +11,12 @@ use Exception;
 class OAuth
 {
     const TOKEN_URL     = 'https://api.fitbit.com/oauth2/token';
+    const REVOKE_URL    = 'https://api.fitbit.com/oauth2/revoke';
     const AUTHORIZE_URL = 'https://www.fitbit.com/oauth2/authorize';
-    private $challenge;
-    private $access_token;
-    private $refresh_token;
-    private $user_id;
+
+    private $access_token = null;
+    private $refresh_token = null;
+    private $user_id = null;
 
     public function __construct(Config $config)
     {
@@ -53,30 +54,15 @@ class OAuth
 
     public function getOAuthTokens(): ?array
     {
-        if ($this->config->hasCode()) {
-            $curl  = new CurlHelper();
-
-            $curl->setUrl(self::TOKEN_URL);
-
-            $curl->setPostRaw([
+        if ($this->checkAuthorized("code")) {
+            $post_params = array(
                 'client_id'     => $this->config->getClientId(),
                 'grant_type'    => 'authorization_code',
                 'redirect_uri'  => $this->config->getRedirectUrl(),
                 'code'          => $this->config->getCode()
-            ]);
+            );
 
-            if ($this->config->getOAuthType() === "server") {
-                $curl->setHeaders([
-                    "Authorization" => "Basic {$this->config->getBasicAuth()}"
-                ]);
-            }
-
-            $curl->setMime("form");
-
-            $curl->execute();
-
-            $response   = $curl->response();
-            list($error, $msg) = $curl->parseCode();
+            list($response, $error, $msg) = $this->post(self::TOKEN_URL, $post_params);
 
             if ($error === false) {
                 $this->setAuth($response);
@@ -86,33 +72,34 @@ class OAuth
 
         return null;
     }
-    
+
     public function refreshToken(): ?array
     {
-        if ($this->config->hasCode()) {
-            $curl  = new CurlHelper();
+        if ($this->checkAuthorized("refresh_token")) {
+            $post_params = array(
+                'grant_type'     => 'refresh_token',
+                'refresh_token'  => $this->getRefreshToken(),
+            );
 
-            $curl->setUrl(self::TOKEN_URL);
+            list($response, $error, $msg) = $this->post(self::TOKEN_URL, $post_params);
 
-            $curl->setPostRaw([
-                'client_id'     => $this->config->getClientId(),
-                'grant_type'    => 'authorization_code',
-                'redirect_uri'  => $this->config->getRedirectUrl(),
-                'code'          => $this->config->getCode()
-            ]);
-
-            if ($this->config->getOAuthType() === "server") {
-                $curl->setHeaders([
-                    "Authorization" => "Basic {$this->config->getBasicAuth()}"
-                ]);
+            if ($error === false) {
+                $this->setAuth($response);
+                return $response;
             }
+        }
 
-            $curl->setMime("form");
+        return null;
+    }
 
-            $curl->execute();
+    public function revokeToken(): ?array
+    {
+        if ($this->checkAuthorized("access_token")) {
+            $post_params = array(
+                'token'  => $this->getAccessToken()
+            );
 
-            $response   = $curl->response();
-            list($error, $msg) = $curl->parseCode();
+            list($response, $error, $msg) = $this->post(self::REVOKE_URL, $post_params);
 
             if ($error === false) {
                 $this->setAuth($response);
@@ -138,6 +125,11 @@ class OAuth
         return $this->access_token;
     }
 
+    public function getRefreshToken(): string
+    {
+        return $this->refresh_token;
+    }
+
     public function setRefreshToken(string $refresh_token): void
     {
         $this->refresh_token = $refresh_token;
@@ -153,45 +145,65 @@ class OAuth
         return $this->user_id;
     }
 
-    private function setAuth(array $response): void
+    public function setAuth(array $response): void
     {
         $this->setAccessToken($response['access_token']);
         $this->setRefreshToken($response['refresh_token']);
         $this->setUserId($response['user_id']);
     }
-
-    public function checkAuthorized()
+    
+    /**
+     * @param auth_check required Supported: access_token | refresh_token | user_id | code
+     */
+    public function checkAuthorized(string $auth_check): bool
     {
-        if (!$this->isAuthorized()) {
-            throw new Exception('No auth code or token');
+        switch ($auth_check) {
+            case 'access_token':
+                if (is_null($this->access_token)) {
+                    throw new Exception('No access_token');
+                }
+                break;
+            case 'refresh_token':
+                if (is_null($this->refresh_token)) {
+                    throw new Exception('No arefresh_token');
+                }
+                break;
+            case 'user_id':
+                if (is_null($this->user_id)) {
+                    throw new Exception('No user_id');
+                }
+                break;
+            case 'code':
+                if (!$this->config->hasCode()) {
+                    throw new Exception('No code');
+                }
+                break;
         }
+
+        return true;
     }
 
-    public function isAuthorized(): bool
+    private function post(string $url, array $post_params): ?array
     {
-        return $this->config->hasCode();
-    }
+        $curl  = new CurlHelper();
 
-    private function base64url_encode(string $plainText): string
-    {
-        $base64 = base64_encode($plainText);
-        $base64 = trim($base64, "=");
-        $base64url = strtr($base64, '+/', '-_');
+        $curl->setUrl($url);
 
-        return $base64url;
-    }
+        $curl->setPostRaw($post_params);
 
-    private function setCodeChallenge(): void
-    {
-        $random     = bin2hex(openssl_random_pseudo_bytes(64));
-        $verifier   = $this->base64url_encode(pack('H*', $random));
-        $challenge  = $this->base64url_encode(pack('H*', hash('sha256', $verifier)));
+        if ($this->config->getOAuthType() === "server") {
+            $curl->setHeaders([
+                "Authorization" => "Basic {$this->config->getBasicAuth()}"
+            ]);
+        }
 
-        $this->challenge = $challenge;
-    }
+        $curl->setMime("form");
 
-    private function getCodeChallenge(): string
-    {
-        return $this->challenge;
+        $curl->execute();
+
+        $response   = $curl->response();
+        list($error, $msg) = $curl->parseCode();
+
+        return (array("response" => $response, "error" => $error, "msg" => $msg));
     }
 }
