@@ -6,9 +6,13 @@ namespace Adrii;
 
 use Adrii\OAuth\OAuth;
 use Adrii\OAuth\Config;
+use Adrii\User\Activity;
 
 class Fitbit
 {
+    private $config;
+    private $authorizator;
+
     public function __construct(
         string $clientId,
         string $clientSecret,
@@ -18,6 +22,8 @@ class Fitbit
     ) {
         $this->config       = new Config($clientId, $clientSecret, $redirectUrl, $authType, $setStaticParams);
         $this->authorizator = new OAuth($this->config);
+
+        $this->activities   = new Activity($this->authorizator);
     }
 
     public function getAuthUri(): string
@@ -28,6 +34,11 @@ class Fitbit
     public function getAccessToken(string $code): array
     {
         $this->config->setCode($code);
-        return $this->authorizator->getAccessToken($code);
+        return $this->authorizator->getOAuthTokens($code);
+    }
+
+    public function activities()
+    {
+        return $this->activities;
     }
 }

@@ -19,15 +19,12 @@ class OAuth
     public function __construct(Config $config)
     {
         $this->config = $config;
-        $this->setCodeChallenge();
     }
 
     public function getAuthUri(): string
     {
         $auth_uri = self::AUTHORIZE_URL . '?' . http_build_query([
             'client_id'             => $this->config->getClientId(),
-            // 'code_challenge'        => $this->getCodeChallenge(),
-            'code_challenge_method' => 'S256',
             'scope' => implode(' ', [
                 'activity',
                 'nutrition',
@@ -52,30 +49,8 @@ class OAuth
         return $auth_uri;
     }
 
-    private function base64url_encode(string $plainText): string
-    {
-        $base64 = base64_encode($plainText);
-        $base64 = trim($base64, "=");
-        $base64url = strtr($base64, '+/', '-_');
 
-        return $base64url;
-    }
-
-    private function setCodeChallenge(): void
-    {
-        $random     = bin2hex(openssl_random_pseudo_bytes(64));
-        $verifier   = $this->base64url_encode(pack('H*', $random));
-        $challenge  = $this->base64url_encode(pack('H*', hash('sha256', $verifier)));
-
-        $this->challenge = $challenge;
-    }
-
-    private function getCodeChallenge(): string
-    {
-        return $this->challenge;
-    }
-
-    public function getAccessToken(): ?array
+    public function getOAuthTokens(): ?array
     {
         if ($this->config->hasCode()) {
             $curl  = new CurlHelper();
@@ -102,11 +77,10 @@ class OAuth
             $response   = $curl->response();
             list($error, $msg) = $curl->parseCode();
 
-            if($error === false){
+            if ($error === false) {
                 $this->setAuth($response);
                 return $response;
             }
-
         }
 
         return null;
@@ -117,30 +91,70 @@ class OAuth
         $this->config->setCode($code);
     }
 
-    public function isAuthorized(): bool
-    {
-        return $this->config->hasCode();
-    }
-
     public function setAccessToken(string $access_token): void
     {
         $this->access_token = $access_token;
+    }
+
+    public function getAccessToken(): string
+    {
+        return $this->access_token;
     }
 
     public function setRefreshToken(string $refresh_token): void
     {
         $this->refresh_token = $refresh_token;
     }
-    
+
     public function setUserId(string $user_id): void
     {
         $this->user_id = $user_id;
     }
-  
+
+    public function getUserId(): string
+    {
+        return $this->user_id;
+    }
+
     private function setAuth(array $response): void
     {
         $this->setAccessToken  = $response['access_token'];
         $this->setRefreshToken = $response['refresh_token'];
         $this->setUserId       = $response['user_id'];
+    }
+
+    public function checkAuthorized()
+    {
+        if (!$this->isAuthorized()) {
+            throw new Exception('No auth code or token');
+        }
+    }
+
+    public function isAuthorized(): bool
+    {
+        return $this->config->hasCode();
+    }
+
+    private function base64url_encode(string $plainText): string
+    {
+        $base64 = base64_encode($plainText);
+        $base64 = trim($base64, "=");
+        $base64url = strtr($base64, '+/', '-_');
+
+        return $base64url;
+    }
+
+    private function setCodeChallenge(): void
+    {
+        $random     = bin2hex(openssl_random_pseudo_bytes(64));
+        $verifier   = $this->base64url_encode(pack('H*', $random));
+        $challenge  = $this->base64url_encode(pack('H*', hash('sha256', $verifier)));
+
+        $this->challenge = $challenge;
+    }
+
+    private function getCodeChallenge(): string
+    {
+        return $this->challenge;
     }
 }
