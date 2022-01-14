@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Adrii\User;
 
 use Adrii\OAuth\OAuth;
+use Exception;
 
 class Config
 {
@@ -44,6 +45,7 @@ class Config
 
     public function setPeriod(string $period): void
     {
+        $period = strtoupper($period);
         $this->checkValidity($this->periods, $period);
         $this->period = $this->periods[$period];
     }

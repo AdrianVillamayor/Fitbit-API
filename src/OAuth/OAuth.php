@@ -6,6 +6,7 @@ namespace Adrii\OAuth;
 
 use Adrii\OAuth\Config;
 use Adrii\CurlHelper;
+use Exception;
 
 class OAuth
 {
