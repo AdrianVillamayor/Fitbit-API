@@ -22,10 +22,8 @@ class Activity
         $this->config->setPeriod($period);
 
         $period = $this->config->getPeriod();
-
-        $url = "activities/goals/{$period}.json";
-
-        $bearer  = $this->config->getBearer();
+        $url    = $this->config->getApiUri("activities/goals/{$period}.json");
+        $bearer = $this->config->getBearer();
 
         $curl = new CurlHelper();
 
