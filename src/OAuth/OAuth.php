@@ -119,9 +119,9 @@ class OAuth
 
     private function setAuth(array $response): void
     {
-        $this->setAccessToken  = $response['access_token'];
-        $this->setRefreshToken = $response['refresh_token'];
-        $this->setUserId       = $response['user_id'];
+        $this->setAccessToken($response['access_token']);
+        $this->setRefreshToken($response['refresh_token']);
+        $this->setUserId($response['user_id']);
     }
 
     public function checkAuthorized()
