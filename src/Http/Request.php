@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Adrii\Http;
 
 use Adrii\CurlHelper;
-use Exception;
 
 class Request
 {
-    protected function get(string $url, array $get_params = [], array $headers = []): ?array
+    public function get(string $url, array $get_params = [], array $headers = []): ?array
     {
         $curl = new CurlHelper();
 
@@ -30,7 +29,7 @@ class Request
         return (array("response" => $response, "error" => $error, "msg" => $msg));
     }
 
-    protected function post(string $url, array $post_params, array $headers = []): ?array
+    public function post(string $url, array $post_params, array $headers = []): ?array
     {
         $curl  = new CurlHelper();
 

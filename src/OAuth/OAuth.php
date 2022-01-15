@@ -17,6 +17,7 @@ class OAuth
     private $access_token = null;
     private $refresh_token = null;
     private $user_id = null;
+    private $config;
     private $http_request;
 
     public function __construct(Config $config)
