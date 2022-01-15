@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Adrii\OAuth;
 
 use Adrii\OAuth\Config;
-use Adrii\CurlHelper;
+use Adrii\Http;
 use Exception;
 
 class OAuth
@@ -17,10 +17,12 @@ class OAuth
     private $access_token = null;
     private $refresh_token = null;
     private $user_id = null;
+    private $http;
 
     public function __construct(Config $config)
     {
-        $this->config = $config;
+        $this->config   = $config;
+        $this->http     =  new Http();
     }
 
     public function getAuthUri(): string
@@ -61,8 +63,10 @@ class OAuth
                 'redirect_uri'  => $this->config->getRedirectUrl(),
                 'code'          => $this->config->getCode()
             );
+            
+            $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
 
-            list($response, $error, $msg) = $this->post(self::TOKEN_URL, $post_params);
+            list($response, $error, $msg) = $this->http->post(self::TOKEN_URL, $post_params, $headers);
 
             if ($error === false) {
                 $this->setAuth($response);
@@ -81,7 +85,9 @@ class OAuth
                 'refresh_token'  => $this->getRefreshToken(),
             );
 
-            list($response, $error, $msg) = $this->post(self::TOKEN_URL, $post_params);
+            $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
+
+            list($response, $error, $msg) = $this->http->post(self::TOKEN_URL, $post_params, $headers);
 
             if ($error === false) {
                 $this->setAuth($response);
@@ -99,7 +105,9 @@ class OAuth
                 'token'  => $this->getAccessToken()
             );
 
-            list($response, $error, $msg) = $this->post(self::REVOKE_URL, $post_params);
+            $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
+
+            list($response, $error, $msg) = $this->http->post(self::REVOKE_URL, $post_params, $headers);
 
             if ($error === false) {
                 $this->setAuth($response);
@@ -151,7 +159,7 @@ class OAuth
         $this->setRefreshToken($response['refresh_token']);
         $this->setUserId($response['user_id']);
     }
-    
+
     /**
      * @param auth_check required Supported: access_token | refresh_token | user_id | code
      */
@@ -181,29 +189,5 @@ class OAuth
         }
 
         return true;
-    }
-
-    private function post(string $url, array $post_params): ?array
-    {
-        $curl  = new CurlHelper();
-
-        $curl->setUrl($url);
-
-        $curl->setPostRaw($post_params);
-
-        if ($this->config->getOAuthType() === "server") {
-            $curl->setHeaders([
-                "Authorization" => "Basic {$this->config->getBasicAuth()}"
-            ]);
-        }
-
-        $curl->setMime("form");
-
-        $curl->execute();
-
-        $response   = $curl->response();
-        list($error, $msg) = $curl->parseCode();
-
-        return (array("response" => $response, "error" => $error, "msg" => $msg));
     }
 }

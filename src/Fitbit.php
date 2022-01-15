@@ -37,7 +37,7 @@ class Fitbit
         return $this->authorizator->getOAuthTokens($code);
     }
 
-    public function setAuthToken(string $access_token = null, string $refresh_token = null, string $user_id = null): void
+    public function setUserTokens(string $access_token = null, string $refresh_token = null, string $user_id = null): void
     {
         $this->authorizator->setAuth([
             'access_token'  => $access_token,
@@ -45,7 +45,7 @@ class Fitbit
             'user_id'       => $user_id,
         ]);
     }
-
+    
     public function activities()
     {
         return $this->activities;

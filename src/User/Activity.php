@@ -6,7 +6,7 @@ namespace Adrii\User;
 
 use Adrii\User\Config;
 use Adrii\OAuth\OAuth;
-use Adrii\CurlHelper;
+use Adrii\Http;
 
 class Activity
 {
@@ -14,7 +14,8 @@ class Activity
 
     public function __construct(OAuth $authorizator)
     {
-        $this->config = new Config($authorizator);
+        $this->config   = new Config($authorizator);
+        $this->http     =  new Http();
     }
 
     /**
@@ -25,24 +26,12 @@ class Activity
         $this->config->setPeriod($period);
 
         $period = $this->config->getPeriod();
-        $url    = $this->config->getApiUri("activities/goals/{$period}.json");
-        $bearer = $this->config->getBearer();
 
-        $curl = new CurlHelper();
+        $url     = $this->config->getApiUri("activities/goals/{$period}.json");
+        $bearer  = $this->config->getBearer();
+        $headers = ["Authorization" => "Bearer {$bearer}"];
 
-        $curl->setUrl($url);
-
-        $curl->setHeaders([
-            "Authorization" => "Bearer {$bearer}"
-        ]);
-
-        $curl->setMime("json");
-
-        $curl->setUtf8();
-
-        $curl->execute();
-
-        $response   = $curl->response();
+        $response = $this->http->get($url, [], $headers);
 
         return $response;
     }
@@ -78,25 +67,11 @@ class Activity
             }
         }
 
-        $url    = $this->config->getApiUri("activities/list.json");
-        $bearer = $this->config->getBearer();
+        $url     = $this->config->getApiUri("activities/list.json");
+        $bearer  = $this->config->getBearer();
+        $headers = ["Authorization" => "Bearer {$bearer}"];
 
-        $curl = new CurlHelper();
-
-        $curl->setUrl($url);
-        $curl->setGetParams($query_params);
-
-        $curl->setHeaders([
-            "Authorization" => "Bearer {$bearer}"
-        ]);
-
-        $curl->setMime("json");
-
-        $curl->setUtf8();
-
-        $curl->execute();
-
-        $response   = $curl->response();
+        $response = $this->http->get($url, $query_params, $headers);
 
         return $response;
     }
