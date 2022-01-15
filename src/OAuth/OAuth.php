@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Adrii\OAuth;
 
 use Adrii\OAuth\Config;
-use Adrii\Http;
+use Adrii\Http\Request;
 use Exception;
 
 class OAuth
@@ -17,12 +17,12 @@ class OAuth
     private $access_token = null;
     private $refresh_token = null;
     private $user_id = null;
-    private $http;
+    private $http_request;
 
     public function __construct(Config $config)
     {
-        $this->config   = $config;
-        $this->http     =  new Http();
+        $this->config       = $config;
+        $this->http_request = new Request();
     }
 
     public function getAuthUri(): string
@@ -63,10 +63,10 @@ class OAuth
                 'redirect_uri'  => $this->config->getRedirectUrl(),
                 'code'          => $this->config->getCode()
             );
-            
+
             $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
 
-            list($response, $error, $msg) = $this->http->post(self::TOKEN_URL, $post_params, $headers);
+            list($response, $error, $msg) = $this->http_request->post(self::TOKEN_URL, $post_params, $headers);
 
             if ($error === false) {
                 $this->setAuth($response);
@@ -87,7 +87,7 @@ class OAuth
 
             $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
 
-            list($response, $error, $msg) = $this->http->post(self::TOKEN_URL, $post_params, $headers);
+            list($response, $error, $msg) = $this->http_request->post(self::TOKEN_URL, $post_params, $headers);
 
             if ($error === false) {
                 $this->setAuth($response);
@@ -107,7 +107,7 @@ class OAuth
 
             $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
 
-            list($response, $error, $msg) = $this->http->post(self::REVOKE_URL, $post_params, $headers);
+            list($response, $error, $msg) = $this->http_request->post(self::REVOKE_URL, $post_params, $headers);
 
             if ($error === false) {
                 $this->setAuth($response);

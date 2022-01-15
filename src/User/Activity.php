@@ -6,7 +6,7 @@ namespace Adrii\User;
 
 use Adrii\User\Config;
 use Adrii\OAuth\OAuth;
-use Adrii\Http;
+use Adrii\Http\Request;
 
 class Activity
 {
@@ -14,8 +14,8 @@ class Activity
 
     public function __construct(OAuth $authorizator)
     {
-        $this->config   = new Config($authorizator);
-        $this->http     =  new Http();
+        $this->config        = new Config($authorizator);
+        $this->http_request  = new Request();
     }
 
     /**
@@ -31,7 +31,7 @@ class Activity
         $bearer  = $this->config->getBearer();
         $headers = ["Authorization" => "Bearer {$bearer}"];
 
-        $response = $this->http->get($url, [], $headers);
+        $response = $this->http_request->get($url, [], $headers);
 
         return $response;
     }
@@ -71,7 +71,7 @@ class Activity
         $bearer  = $this->config->getBearer();
         $headers = ["Authorization" => "Bearer {$bearer}"];
 
-        $response = $this->http->get($url, $query_params, $headers);
+        $response = $this->http_request->get($url, $query_params, $headers);
 
         return $response;
     }

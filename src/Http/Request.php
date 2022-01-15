@@ -7,7 +7,7 @@ namespace Adrii\Http;
 use Adrii\CurlHelper;
 use Exception;
 
-class Http
+class Request
 {
     protected function get(string $url, array $get_params = [], array $headers = []): ?array
     {
