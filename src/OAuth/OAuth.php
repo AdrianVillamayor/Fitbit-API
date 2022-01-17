@@ -10,9 +10,10 @@ use Exception;
 
 class OAuth
 {
-    const TOKEN_URL     = 'https://api.fitbit.com/oauth2/token';
-    const REVOKE_URL    = 'https://api.fitbit.com/oauth2/revoke';
-    const AUTHORIZE_URL = 'https://www.fitbit.com/oauth2/authorize';
+    const TOKEN_URL      = 'https://api.fitbit.com/oauth2/token';
+    const REVOKE_URL     = 'https://api.fitbit.com/oauth2/revoke';
+    const INTROSPECT_URL = 'https://api.fitbit.com/oauth2/introspect';
+    const AUTHORIZE_URL  = 'https://www.fitbit.com/oauth2/authorize';
 
     private $access_token = null;
     private $refresh_token = null;
@@ -54,7 +55,6 @@ class OAuth
         return $auth_uri;
     }
 
-
     public function getOAuthTokens(): ?array
     {
         if ($this->checkAuthorized("code")) {
@@ -78,6 +78,35 @@ class OAuth
         return null;
     }
 
+    public function checkOAuthTokens(): ?array
+    {
+        if ($this->checkAuthorized("access_token")) {
+            $post_params = array(
+                'client_id'     => $this->config->getClientId(),
+                'grant_type'    => 'authorization_code',
+                'redirect_uri'  => $this->config->getRedirectUrl(),
+                'code'          => $this->config->getCode()
+            );
+
+            $headers = ["Authorization" => "Bearer {$this->getAccessToken()}"];
+
+            list($response, $error, $msg) = $this->http_request->post(self::INTROSPECT_URL, $post_params, $headers);
+
+            if ($error === false) {
+                $state = $response['active'];
+
+                if ($state === false) {
+                    $response = $this->refreshToken();
+                }
+
+                $response['state'] = $state;
+                return $response;
+            }
+        }
+
+        return null;
+    }
+
     public function refreshToken(): ?array
     {
         if ($this->checkAuthorized("refresh_token")) {
@@ -86,7 +115,7 @@ class OAuth
                 'refresh_token'  => $this->getRefreshToken(),
             );
 
-            $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
+            $headers = ["Authorization" => "Basic {$this->config->getBasicAuth()}"];
 
             list($response, $error, $msg) = $this->http_request->post(self::TOKEN_URL, $post_params, $headers);
 
@@ -106,12 +135,11 @@ class OAuth
                 'token'  => $this->getAccessToken()
             );
 
-            $headers =  ($this->config->getOAuthType() === "server") ? ["Authorization" => "Basic {$this->config->getBasicAuth()}"] : [];
+            $headers = ["Authorization" => "Basic {$this->config->getBasicAuth()}"];
 
             list($response, $error, $msg) = $this->http_request->post(self::REVOKE_URL, $post_params, $headers);
 
             if ($error === false) {
-                $this->setAuth($response);
                 return $response;
             }
         }
