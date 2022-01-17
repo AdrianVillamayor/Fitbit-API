@@ -26,7 +26,7 @@ class Request
         $response           = $curl->response();
         list($error, $msg)  = $curl->parseCode();
 
-        return (array("response" => $response, "error" => $error, "msg" => $msg));
+        return (array($response, $error, $msg));
     }
 
     public function post(string $url, array $post_params, array $headers = []): ?array
@@ -46,6 +46,6 @@ class Request
         $response           = $curl->response();
         list($error, $msg)  = $curl->parseCode();
 
-        return (array("response" => $response, "error" => $error, "msg" => $msg));
+        return (array($response, $error, $msg));
     }
 }
