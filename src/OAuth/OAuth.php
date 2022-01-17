@@ -82,10 +82,7 @@ class OAuth
     {
         if ($this->checkAuthorized("access_token")) {
             $post_params = array(
-                'client_id'     => $this->config->getClientId(),
-                'grant_type'    => 'authorization_code',
-                'redirect_uri'  => $this->config->getRedirectUrl(),
-                'code'          => $this->config->getCode()
+                'token'     => $this->getAccessToken(),
             );
 
             $headers = ["Authorization" => "Bearer {$this->getAccessToken()}"];
