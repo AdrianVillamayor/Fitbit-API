@@ -90,14 +90,9 @@ class OAuth
             list($response, $error, $msg) = $this->http_request->post(self::INTROSPECT_URL, $post_params, $headers);
 
             if ($error === false) {
-                $state = $response['active'];
-
-                if ($state === false) {
-                    $response = $this->refreshToken();
-                }
-
-                $response['state'] = $state;
                 return $response;
+            } else {
+                return $this->parseError($response);
             }
         }
 
@@ -184,6 +179,14 @@ class OAuth
         $this->setAccessToken($response['access_token']);
         $this->setRefreshToken($response['refresh_token']);
         $this->setUserId($response['user_id']);
+    }
+
+    private function parseError(array $response): ?array
+    {
+        if ($response['errors'][0]['errorType'] === "expired_token") {
+            return $this->refreshToken();
+        }
+        return null;
     }
 
     /**
