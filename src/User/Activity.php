@@ -37,13 +37,13 @@ class Activity
     }
 
     /**
-     * @param beforeDate  optional/required	   Only yyyy-MM-dd is required. Either beforeDate or afterDate must be specified.	($date or $timestamp)
-     * @param afterDate	optional/required	Only yyyy-MM-dd is required. Either beforeDate or afterDate must be specified.	($date or $timestamp
+     * @param when  required	Supported: before or after
+     * @param date	required	Only yyyy-MM-dd is required.
      * @param sort	required	The sort order of entries by date. Use asc (ascending) when using afterDate. Use desc (descending) when sing before date.
      * @param limit	required	The number of entries returned (maximum = 100).
      * @param offset required	Supported: 0
      */
-    public function log_list(?string $beforeDate = null, ?string $afterDate = null, string $sort = 'desc', int $limit = 100, int $offset = 0)
+    public function log_list(string $when = 'before', ?string $date = null, string $sort = 'desc', int $limit = 100, int $offset = 0)
     {
         $query_params = array(
             'sort'      => $sort,
@@ -51,20 +51,18 @@ class Activity
             'offset'    => $offset
         );
 
-        if (isset($beforeDate)) {
-            if ($this->config->checkDate($beforeDate)) {
-                $query_params['beforeDate'] = $beforeDate;
-            } else {
-                throw new Exception("Error in the format, required yyyy-MM-dd format on beforeDate", 1);
-            }
+        $when = strtolower($when);
+
+        if (!in_array($when, array("before", "after"))) {
+            throw new Exception('Error, $when only supports before or after', 1);
         }
 
-        if (isset($afterDate)) {
-            if ($this->config->checkDate($afterDate)) {
-                $query_params['afterDate'] = $afterDate;
-            } else {
-                throw new Exception("Error in the format, required yyyy-MM-dd format on afterDate", 1);
-            }
+        if ($this->config->checkDate($date)) {
+
+
+            $query_params["{$when}Date"] = $date;
+        } else {
+            throw new Exception("Error in the format, required yyyy-MM-dd format", 1);
         }
 
         $url     = $this->config->getApiUri("activities/list.json");
