@@ -137,6 +137,10 @@ class OAuth
             list($response, $error, $msg) = $this->http_request->post(self::REVOKE_URL, $post_params, $headers);
 
             if ($error === false) {
+                $this->access_token = null;
+                $this->refresh_token = null;
+                $this->user_id = null;
+                
                 return $response;
             }
         }

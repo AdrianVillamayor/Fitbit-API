@@ -37,6 +37,11 @@ class Fitbit
         return $this->authorizator->getOAuthTokens($code);
     }
 
+    public function revokeAccess(): array
+    {
+        return $this->authorizator->revokeToken();
+    }
+
     public function setUserTokens(string $access_token = null, string $refresh_token = null, string $user_id = null): ?array
     {
         $this->authorizator->setAuth([
