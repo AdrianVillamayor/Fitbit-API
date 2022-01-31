@@ -48,4 +48,24 @@ class Request
 
         return (array($response, $error, $msg));
     }
+   
+    public function delete(string $url, array $post_params, array $headers = []): ?array
+    {
+        $curl  = new CurlHelper();
+
+        $curl->setUrl($url);
+
+        $curl->setDeleteParams($post_params);
+
+        $curl->setHeaders($headers);
+
+        $curl->setMime("form");
+
+        $curl->execute();
+
+        $response           = $curl->response();
+        list($error, $msg)  = $curl->parseCode();
+
+        return (array($response, $error, $msg));
+    }
 }

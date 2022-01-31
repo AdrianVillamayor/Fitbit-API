@@ -33,14 +33,32 @@ class Config
         $this->authorizator = $authorizator;
     }
 
-    public function getApiUri(string $uri): string
+    public function getApiUri(string $uri): ?string
     {
-        return self::API_URL . $this->authorizator->getUserId() . "/" . $uri;
+        if ($this->authorizator->checkAuthorized("user_id")) {
+            return self::API_URL . $this->authorizator->getUserId() . "/" . $uri;
+        }
+
+        return null;
     }
 
-    public function getBearer(): string
+    
+    public function getBearer(): ?string
     {
-        return $this->authorizator->getAccessToken();
+        if ($this->authorizator->checkAuthorized("access_token")) {
+            return $this->authorizator->getAccessToken();
+        }
+
+        return null;
+    }
+    
+    public function getUserId(): ?string
+    {
+        if ($this->authorizator->checkAuthorized("user_id")) {
+            return $this->authorizator->getUserId();
+        }
+
+        return null;
     }
 
     public function setPeriod(string $period): void

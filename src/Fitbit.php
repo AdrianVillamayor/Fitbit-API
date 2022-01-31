@@ -7,11 +7,13 @@ namespace Adrii;
 use Adrii\OAuth\OAuth;
 use Adrii\OAuth\Config;
 use Adrii\User\Activity;
+use Adrii\User\Subscription;
 
 class Fitbit
 {
     private $config;
     private $authorizator;
+    private $subscription;
 
     public function __construct(
         string $clientId,
@@ -24,6 +26,7 @@ class Fitbit
         $this->authorizator = new OAuth($this->config);
 
         $this->activities   = new Activity($this->authorizator);
+        $this->subscription = new Subscription($this->subscription);
     }
 
     public function getAuthUri(): string
@@ -58,5 +61,10 @@ class Fitbit
     public function activities()
     {
         return $this->activities;
+    }
+   
+    public function subscription()
+    {
+        return $this->subscription;
     }
 }
