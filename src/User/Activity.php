@@ -34,7 +34,7 @@ class Activity
 
         list($response, $error, $msg) = $this->http_request->get($url, [], $headers);
 
-        if ($error !== false) {
+        if ($error === false) {
             $this->goals = $response['goals'];
         }
 
