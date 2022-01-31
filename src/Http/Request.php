@@ -26,7 +26,7 @@ class Request
         $response           = $curl->response();
         list($error, $msg)  = $curl->parseCode();
 
-        return (array($response, $error, $msg));
+        return array($response, $error, $msg);
     }
 
     public function post(string $url, array $post_params, array $headers = []): ?array
@@ -46,9 +46,9 @@ class Request
         $response           = $curl->response();
         list($error, $msg)  = $curl->parseCode();
 
-        return (array($response, $error, $msg));
+        return array($response, $error, $msg);
     }
-   
+
     public function delete(string $url, array $post_params, array $headers = []): ?array
     {
         $curl  = new CurlHelper();
@@ -66,6 +66,6 @@ class Request
         $response           = $curl->response();
         list($error, $msg)  = $curl->parseCode();
 
-        return (array($response, $error, $msg));
+        return array($response, $error, $msg);
     }
 }

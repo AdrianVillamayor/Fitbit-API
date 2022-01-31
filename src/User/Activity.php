@@ -11,6 +11,7 @@ use Adrii\Http\Request;
 class Activity
 {
     private $config;
+    private $goals = null;
 
     public function __construct(OAuth $authorizator)
     {
@@ -31,10 +32,15 @@ class Activity
         $bearer  = $this->config->getBearer();
         $headers = ["Authorization" => "Bearer {$bearer}"];
 
-        $response = $this->http_request->get($url, [], $headers);
+        list($response, $error, $msg) = $this->http_request->get($url, [], $headers);
 
-        return $response;
+        if ($error !== false) {
+            $this->goals = $response['goals'];
+        }
+
+        return $this->goals;
     }
+
 
     /**
      * @param when  required	Supported: before or after
@@ -69,7 +75,7 @@ class Activity
         $bearer  = $this->config->getBearer();
         $headers = ["Authorization" => "Bearer {$bearer}"];
 
-        $response = $this->http_request->get($url, $query_params, $headers);
+        list($response, $error, $msg) = $this->http_request->get($url, $query_params, $headers);
 
         return $response;
     }
