@@ -26,7 +26,7 @@ class Fitbit
         $this->authorizator = new OAuth($this->config);
 
         $this->activities   = new Activity($this->authorizator);
-        $this->subscription = new Subscription($this->subscription);
+        $this->subscription = new Subscription($this->authorizator);
     }
 
     public function getAuthUri(): string
