@@ -11,6 +11,7 @@ use Adrii\Http\Request;
 class Activity
 {
     private $config;
+    private $http_request = null;
     private $goals = null;
 
     public function __construct(OAuth $authorizator)

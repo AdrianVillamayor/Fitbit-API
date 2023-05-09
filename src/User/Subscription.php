@@ -11,6 +11,7 @@ use Adrii\Http\Request;
 class Subscription
 {
     private $config;
+    private $http_request;
 
     public function __construct(OAuth $authorizator)
     {

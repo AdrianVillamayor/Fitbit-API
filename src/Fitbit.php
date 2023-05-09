@@ -13,6 +13,7 @@ class Fitbit
 {
     private $config;
     private $authorizator;
+    private $activities;
     private $subscription;
 
     public function __construct(
@@ -34,13 +35,13 @@ class Fitbit
         return $this->authorizator->getAuthUri();
     }
 
-    public function getAccessToken(string $code): array
+    public function getAccessToken(string $code): ?array
     {
         $this->config->setCode($code);
         return $this->authorizator->getOAuthTokens($code);
     }
 
-    public function revokeAccess(): array
+    public function revokeAccess(): ?array
     {
         return $this->authorizator->revokeToken();
     }
